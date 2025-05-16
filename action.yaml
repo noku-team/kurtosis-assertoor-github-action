@@ -389,7 +389,7 @@ runs:
       fi
 
   - name: Clean all docker containers, images, and volumes
-    if: ${{ inputs.clean_docker == 'true' }}
+    if: ${{ always() && inputs.clean_docker == 'true' }}
     uses: gacts/run-and-post-run@d803f6920adc9a47eeac4cb6c93dbc2e2890c684 # v1.4.2
     with: 
       post: |
