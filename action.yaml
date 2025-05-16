@@ -64,6 +64,10 @@ inputs:
     description: 'Await assertoor test completion and return test results (true/false)'
     required: false
     default: 'true'
+  clean_docker:
+    description: 'Clean all docker containers, images, and volumes (true/false)'
+    required: false
+    default: 'false'
 
 outputs:
   services:
@@ -383,3 +387,17 @@ runs:
 
         exit 1 # fail action
       fi
+
+  - name: Clean all docker containers, images, and volumes
+    if: ${{ inputs.clean_docker == 'true' }}
+    uses: gacts/run-and-post-run@d803f6920adc9a47eeac4cb6c93dbc2e2890c684 # v1.4.2
+    with: 
+      post: |
+        # stop all containers
+        docker stop $(docker ps -a -q)
+        # remove containers and images
+        docker rm -f $(docker ps -a -q)
+        docker rmi -f $(docker images -q)
+        docker system prune -a -f
+        # remove volumes
+        docker volume rm $(docker volume ls -q)
