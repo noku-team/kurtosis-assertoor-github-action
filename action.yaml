@@ -352,18 +352,19 @@ runs:
   - name: Remove kurtosis enclave
     uses: gacts/run-and-post-run@d803f6920adc9a47eeac4cb6c93dbc2e2890c684 # v1.4.2
     if: ${{ always() }}
+    shell: bash
     with:
       post: |
         kurtosis enclave rm -f ${{ steps.kurtosis.outputs.enclave_name }} || true
-        if [ "${{ inputs.kurtosis_backend }}" == "docker" ]; then
+        if [ "${{ inputs.clean_docker }}" == "true" ]; then
           # stop all containers
-          docker stop $(docker ps -a -q)
+          docker stop $(docker ps -a -q) || true
           # remove containers and images
-          docker rm -f $(docker ps -a -q)
-          docker rmi -f $(docker images -q)
-          docker system prune -a -f
+          docker rm -f $(docker ps -a -q) || true
+          docker rmi -f $(docker images -q) || true
+          docker system prune -a -f || true
           # remove volumes
-          docker volume rm $(docker volume ls -q)
+          docker volume rm $(docker volume ls -q) || true
         fi
 
   - name: Return test result
