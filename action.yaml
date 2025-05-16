@@ -355,6 +355,16 @@ runs:
     with:
       post: |
         kurtosis enclave rm -f ${{ steps.kurtosis.outputs.enclave_name }} || true
+        if [ "${{ inputs.kurtosis_backend }}" == "docker" ]; then
+          # stop all containers
+          docker stop $(docker ps -a -q)
+          # remove containers and images
+          docker rm -f $(docker ps -a -q)
+          docker rmi -f $(docker images -q)
+          docker system prune -a -f
+          # remove volumes
+          docker volume rm $(docker volume ls -q)
+        fi
 
   - name: Return test result
     if: ${{ inputs.await_assertoor_tests == 'true' && steps.services.outputs.assertoor_url != '' }}
@@ -387,17 +397,3 @@ runs:
 
         exit 1 # fail action
       fi
-
-  - name: Clean all docker containers, images, and volumes
-    if: ${{ always() && inputs.clean_docker == 'true' }}
-    uses: gacts/run-and-post-run@d803f6920adc9a47eeac4cb6c93dbc2e2890c684 # v1.4.2
-    with: 
-      post: |
-        # stop all containers
-        docker stop $(docker ps -a -q)
-        # remove containers and images
-        docker rm -f $(docker ps -a -q)
-        docker rmi -f $(docker images -q)
-        docker system prune -a -f
-        # remove volumes
-        docker volume rm $(docker volume ls -q)
