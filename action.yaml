@@ -352,7 +352,6 @@ runs:
   - name: Remove kurtosis enclave
     uses: gacts/run-and-post-run@d803f6920adc9a47eeac4cb6c93dbc2e2890c684 # v1.4.2
     if: ${{ always() }}
-    shell: bash
     with:
       post: |
         kurtosis enclave rm -f ${{ steps.kurtosis.outputs.enclave_name }} || true
